@@ -1,0 +1,37 @@
+{
+  AccountStatistics =  NO;
+  AdvertiseAPOP =  YES;
+  AdvertiseClearTextLogin =  YES;
+  AdvertiseGSSAPI =  NO;
+  AdvertiseMSNSASL =  YES;
+  AdvertiseNTLMSASL =  NO;
+  AdvertiseSecureSASL =  YES;
+  CrashRecovery =  YES;
+  DataSetsLogLevel =  2;
+  DNRDummyIPs =  "";
+  DNRLogLevel =  1;
+  DNRMaxRequests =  10;
+  DNSInitialWait =  7;
+  DNSRetries =  5;
+  DNSServers =  "*";
+  DomainName =  test1.intranet.ru;
+  EnableWebUserSASL =  NO;
+  ExternalAUTH =  { Enabled = NO; LogLevel = 3;};
+  ExternalFilters =  ();
+  ExternalRADIUS =  { Enabled = NO; LogLevel = 3;};
+  FailedLoginsNumber =  5;
+  FailedLoginsPeriod =  0;
+  HideAccountUnknown =  YES;
+  LicenseKeys =  (
+  );
+  LogLevel =  3;
+  MBOXSizeToIndex =  100M;
+  NotifierLogLevel =  1;
+  NotifierQueueSize =  100;
+  NumLargeBuffers =  10;
+  SaveInfoUpdates =  YES;
+  TempFilesLogLevel =  1;
+  TempFilesReuse =  YES;
+  TLSEnableWeak =  YES;
+  TLSLogLevel =  1;
+  TLSTimeToLive =  1m;
