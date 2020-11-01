@@ -74,17 +74,108 @@ func getBackendNameByPath(pathName *string) string {
 	return ""
 }
 
+var re = regexp.MustCompile("[ \t]+DomainName[ ]+=[ ]+([a-zA-Z\\.\\-0-9]+);")
+
 func cGPHandleRequest(w http.ResponseWriter, req *http.Request) {
 	// get backend, domain, email, filename
+	// example: /getfile/test1.intranet.ru/test.ru/test@test.ru/test-directory/test-file.txt
+	var params = strings.SplitN(req.URL.Path, "/", 3)
+	switch {
+	case len(params) < 2:
+		// example: 123
+		w.WriteHeader(400)
+	case len(params) == 2:
+		// example: /test
+		handleCommand(w, req, params[1], "")
+	case len(params) == 3:
+		// example: /test/1234
+		handleCommand(w, req, params[1], params[2])
+	default:
+		w.WriteHeader(400)
+	}
+
+	log.Printf("%q\n", html.EscapeString(req.URL.Path))
+}
+
+func handleCommand(w http.ResponseWriter, req *http.Request, command string, path string) {
+	switch command {
+	case "getfile":
+		handleCommandGetFile(w, req, path)
+	default:
+		w.WriteHeader(400)
+	}
+}
+
+func handleCommandGetFile(w http.ResponseWriter, req *http.Request, path string) {
+
+	var err error
+
+	// example: /getfile/test1.intranet.ru/test.ru/test@test.ru/test-directory/test-file.txt
+	var params = strings.SplitN(path, "/", 4)
+
+	if len(params) < 4 || params[3] == "" {
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "Bad path: %s\n", path)
+		return
+	}
+
+	var backendPath, ok = backends[params[0]]
+	if !ok {
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "Backend not found: '%s'\n", params[0])
+		return
+	}
+
+	var domain = params[1]
+	if domain == "" {
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "Domain not found in request: '%s'\n", domain)
+		return
+	}
+
+	var email = params[2]
+	if email == "" {
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "Email not found in request: '%s'\n", email)
+		return
+	}
+
+	var filePath = params[3]
+	if filePath == "" {
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "File path is empty in request: '%s'\n", filePath)
+		return
+	}
 
 	// get path to backend by backend name
+	var emailPrefix string
+	var emailLocalPart string
+
+	emailPrefix = fmt.Sprintf("%s.sub/%s.sub", string(email[0]), string(email[1]))
+	emailLocalPart = strings.SplitN(email, "@", 2)[0]
+
+	var fullPath string
+
+	fullPath = fmt.Sprintf("%s/%s/Domains/%s/%s/%s/%s", *dataDir, backendPath, domain, emailPrefix, emailLocalPart, filePath)
 
 	// check file exists
+	f, err := os.Open(fullPath)
+	if err != nil {
+		log.Printf("Failed opening requested file: %s", err)
+		w.WriteHeader(404)
+		w.Header().Add("Content-type", "text/plain")
+		fmt.Fprintf(w, "Failed open requested file\n")
+		return
+	}
+	defer f.Close()
 
 	// return content like text/plain in utf-8
-
-	// log request
-
-	fmt.Fprintf(w, "Hello, %q\n", html.EscapeString(req.URL.Path))
-	log.Printf("%q\n", html.EscapeString(req.URL.Path))
+	for err != io.EOF {
+		_, err = io.CopyN(w, f, 1024)
+	}
 }
