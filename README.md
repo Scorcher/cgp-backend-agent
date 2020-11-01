@@ -4,6 +4,13 @@
 go run cgpbackendagent -dataDir test-dir
 ```
 
+# Build
+
+for linux x86_64
+```bash
+GOOS=linux GOARCH=amd64 go build cgpbackendagent
+```
+
 # API
 
 ## getfile
