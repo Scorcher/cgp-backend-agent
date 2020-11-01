@@ -114,41 +114,31 @@ func handleCommandGetFile(w http.ResponseWriter, req *http.Request, path string)
 	var params = strings.SplitN(path, "/", 4)
 
 	if len(params) < 4 || params[3] == "" {
-		w.WriteHeader(404)
-		w.Header().Add("Content-type", "text/plain")
-		fmt.Fprintf(w, "Bad path: %s\n", path)
+		returnError(w, 404, fmt.Sprintf("Bad path: %s\n", path))
 		return
 	}
 
 	var backendPath, ok = backends[params[0]]
 	if !ok {
-		w.WriteHeader(404)
-		w.Header().Add("Content-type", "text/plain")
-		fmt.Fprintf(w, "Backend not found: '%s'\n", params[0])
+		returnError(w, 404, fmt.Sprintf("Backend not found: '%s'\n", params[0]))
 		return
 	}
 
 	var domain = params[1]
 	if domain == "" {
-		w.WriteHeader(404)
-		w.Header().Add("Content-type", "text/plain")
-		fmt.Fprintf(w, "Domain not found in request: '%s'\n", domain)
+		returnError(w, 404, fmt.Sprintf("Domain not found in request: '%s'\n", domain))
 		return
 	}
 
 	var email = params[2]
 	if email == "" {
-		w.WriteHeader(404)
-		w.Header().Add("Content-type", "text/plain")
-		fmt.Fprintf(w, "Email not found in request: '%s'\n", email)
+		returnError(w, 404, fmt.Sprintf("Email not found in request: '%s'\n", email))
 		return
 	}
 
 	var filePath = params[3]
 	if filePath == "" {
-		w.WriteHeader(404)
-		w.Header().Add("Content-type", "text/plain")
-		fmt.Fprintf(w, "File path is empty in request: '%s'\n", filePath)
+		returnError(w, 404, fmt.Sprintf("File path is empty in request: '%s'\n", filePath))
 		return
 	}
 
@@ -178,4 +168,10 @@ func handleCommandGetFile(w http.ResponseWriter, req *http.Request, path string)
 	for err != io.EOF {
 		_, err = io.CopyN(w, f, 1024)
 	}
+}
+
+func returnError(w http.ResponseWriter, statusCode int, err string) {
+	w.WriteHeader(statusCode)
+	w.Header().Add("Content-type", "text/plain")
+	fmt.Fprint(w, err)
 }
