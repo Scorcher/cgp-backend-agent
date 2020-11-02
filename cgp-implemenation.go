@@ -151,7 +151,7 @@ func handleCommandGetFile(w http.ResponseWriter, req *http.Request, path string)
 
 	var fullPath string
 
-	fullPath = fmt.Sprintf("%s/%s/Domains/%s/%s/%s/%s", *dataDir, backendPath, domain, emailPrefix, emailLocalPart, filePath)
+	fullPath = fmt.Sprintf("%s/%s/Domains/%s/%s/%s.macnt/%s", *dataDir, backendPath, domain, emailPrefix, emailLocalPart, filePath)
 
 	// check file exists
 	f, err := os.Open(fullPath)
