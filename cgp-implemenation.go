@@ -148,6 +148,7 @@ func handleCommandGetFile(w http.ResponseWriter, req *http.Request, path string)
 
 	emailPrefix = fmt.Sprintf("%s.sub/%s.sub", string(email[0]), string(email[1]))
 	emailPrefix = strings.Replace(emailPrefix, "..", "_.", 2)
+	emailPrefix = strings.Replace(emailPrefix, "@.", "_.", 2)
 	emailLocalPart = strings.SplitN(email, "@", 2)[0]
 
 	var fullPath string
